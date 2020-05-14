@@ -10,6 +10,8 @@ public class TransformRandomiser : EditorWindow
     public GameObject parentObject;
     public List<GameObject> children = new List<GameObject>();
 
+    public bool accountForParentScale = true;
+
 
     //Rot Params
     string minRotX = "0";
@@ -33,22 +35,22 @@ public class TransformRandomiser : EditorWindow
     public static void ShowWindow()
     {
         EditorWindow win = EditorWindow.GetWindow<TransformRandomiser>("TransformRandomiser");
-        win.minSize = new Vector2(300, 200);
-        win.maxSize = new Vector2(300, 200);
+        win.minSize = new Vector2(300, 220);
+        win.maxSize = new Vector2(300, 220);
     }
 
     private void OnGUI()
     {
-        
-        if (GUILayout.Button("PickParent"))
-        {
-            PickParent();
-        }
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Parent:", EditorStyles.boldLabel);
         parentObject = (GameObject)EditorGUILayout.ObjectField(parentObject, typeof(GameObject), true);
         GUILayout.EndHorizontal();
+
+        if (GUILayout.Button("PickParent"))
+        {
+            PickParent();
+        }
 
 
         //RotX------------------------------------------
@@ -80,6 +82,7 @@ public class TransformRandomiser : EditorWindow
         maxRotZ = GUILayout.TextField(maxRotZ, 8, GUILayout.Width(textWidth));
 
         GUILayout.EndHorizontal();
+
 
         if (GUILayout.Button("Randomise Child Rotation"))
         {
@@ -123,7 +126,7 @@ public class TransformRandomiser : EditorWindow
         {
             RandomScale();
         }
-
+        accountForParentScale = GUILayout.Toggle(accountForParentScale, "Account For Parent Scale");
 
         /*if (GUILayout.Button("Parent the children"))
         {
@@ -183,7 +186,10 @@ public class TransformRandomiser : EditorWindow
             float yRot = GetRandom(minRotY, maxRotY);
             float zRot = GetRandom(minRotZ, maxRotZ);
 
-            child.transform.localEulerAngles = new Vector3(xRot, yRot, zRot);
+            child.transform.RotateAround(child.transform.position, child.transform.right, xRot);
+            child.transform.RotateAround(child.transform.position, child.transform.up, yRot);
+            child.transform.RotateAround(child.transform.position, child.transform.forward, zRot);
+
         }
     }
 
@@ -206,8 +212,16 @@ public class TransformRandomiser : EditorWindow
             float xScale = GetRandom(minScaleX, maxScaleX);
             float yScale = GetRandom(minScaleY, maxScaleY);
             float zScale = GetRandom(minScaleZ, maxScaleZ);
-            
+
+            if (accountForParentScale == true)
+            {
+                xScale = xScale / parentObject.transform.localScale.x;
+                yScale = yScale / parentObject.transform.localScale.y;
+                zScale = zScale / parentObject.transform.localScale.z;
+            }
+
             child.transform.localScale = new Vector3(xScale, yScale, zScale);
+            
         }
     }
 }
