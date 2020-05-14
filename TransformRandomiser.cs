@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class TransformRandomiser : EditorWindow
 {
 
-    public GameObject parentObject;
+    public GameObject parentObject = null;
     public List<GameObject> children = new List<GameObject>();
 
     public bool accountForParentScale = true;
@@ -137,6 +137,8 @@ public class TransformRandomiser : EditorWindow
 
     void PickParent()
     {
+
+        children.Clear();
         if (Selection.gameObjects.Length > 0)
         {
             parentObject = Selection.gameObjects[0];
@@ -149,6 +151,7 @@ public class TransformRandomiser : EditorWindow
 
     void FetchChildren()
     {
+        children.Clear();
         if (parentObject != null)
         {
             for (int i = 0; i < parentObject.transform.childCount; i++)
@@ -157,6 +160,8 @@ public class TransformRandomiser : EditorWindow
                 children.Add(childTransform.gameObject);
             }
         }
+        
+        return;
     }
 
     float ParseString(string StringText)
@@ -175,7 +180,7 @@ public class TransformRandomiser : EditorWindow
     void RandomRot()
     {
 
-        if (children.Count == 0)
+        if (children.Count == 0 || children.Count != parentObject.transform.childCount)
         {
             FetchChildren();
         }
@@ -191,6 +196,9 @@ public class TransformRandomiser : EditorWindow
             child.transform.RotateAround(child.transform.position, child.transform.forward, zRot);
 
         }
+
+        return;
+
     }
 
     float GetRandom(string a, string b)
@@ -201,7 +209,7 @@ public class TransformRandomiser : EditorWindow
     void RandomScale()
     {
 
-        if (children.Count == 0)
+        if (children.Count == 0 || children.Count != parentObject.transform.childCount)
         {
             FetchChildren();
         }
@@ -223,5 +231,8 @@ public class TransformRandomiser : EditorWindow
             child.transform.localScale = new Vector3(xScale, yScale, zScale);
             
         }
+
+        return;
+
     }
 }
